@@ -1,13 +1,102 @@
 /* global $ */
 $.jCanvas.defaults.fromCenter = false;
 
-/* .getCanvasImage() don't work on Google Chrome if the page is served from a file URL (file://).
-This is a limitation of Google Chrome’s sandboxing architecture, and therefore cannot be fixed */ 
-if (window.location.protocol == 'file:' && window.navigator.vendor == "Google Inc.") {
-	$('#offline_warning').show();
-	$('select[name=type] option[value=menuhax2015]', "#settings").prop('disabled', true);
-	$('select[name=type] option[value=menuhax2016]', "#settings").prop('disabled', true);
+/*
+Create the binary contents of a bitmap file.
+
+This is not a public interface and is subject to change.
+
+Arguments:
+
+    width -- width of the bitmap
+    height -- height of the bitmap
+    palette -- array of 'rrggbb' strings (if appropriate)
+    imgdata -- pixel data in faux-binary escaped text
+    bpp -- bits per pixel; use in conjunction with compression
+    compression -- compression mode (e.g. uncompressed, 8-bit RLE, 4-bit RLE)
+*/
+function _bmp(width, height, palette, imgdata, bpp, compression) {
+
+	var imgdatasize = imgdata.length;
+	var palettelength = palette.length;
+	var palettesize = palettelength * 4; // 4 bytes per colour
+	var pixeloffset = 54 + palettesize; // pixel data offset
+	var data = [
+		"BM",                                 // magic number
+		_pack(width),      // size of file
+		"\x00\x00\x00\x00",               // unused
+		_pack(pixeloffset),   // number of bytes until pixel data
+		"\x28\x00\x00\x00",               // number of bytes left in the header
+		_pack(width),         // width of pixmap
+		_pack(height),        // height of pixmap
+		"\x01\x00",                         // number of colour planes, must be 1
+		_pack(bpp, 2),           // bits per pixel
+		_pack(compression),   // compression mode
+		_pack(imgdatasize),   // size of raw BMP data (after the header)
+		"\x13\x0B\x00\x00",               // # pixels per metre horizontal res.
+		"\x13\x0B\x00\x00",               // # pixels per metre vertical res
+		_pack(palettelength), // num colours in palette
+		"\x00\x00\x00\x00"                // all colours are important
+
+		// END OF HEADER
+	];
+
+	for (var i=0; i<palette.length; ++i) {
+		data.push(_pack(parseInt(palette[i], 16)));
+	}
+	data.push(imgdata);
+	return data.join("");
 }
+
+/*
+Pack JS integer (signed big-endian?) `num` into a little-endian binary string
+of length `len`.
+*/
+function _pack(num, len) {
+	var o = [], len = ((typeof len == 'undefined') ? 4 : len);
+	for (var i=0; i<len; ++i) {
+		o.push(String.fromCharCode((num >> (i * 8)) & 0xff));
+	}
+	return o.join("");
+}
+
+/*
+Create an uncompressed Windows bitmap (BI_RGB) given width, height and an
+array of pixels.
+
+Pixels should be in BMP order, i.e. starting at the bottom left, going up
+one row at a time.
+
+Example:
+
+    var onebluepixel = bmp(1, 1, ['0000ff']);
+*/
+function bmp_rgb(width, height, pixarray) {
+	var rowsize = (width * 3);
+	var rowpadding = (rowsize % 4);
+	if (rowpadding) rowpadding = Math.abs(4 - rowpadding);
+
+	var i, j, pix;
+	var pixcache = {};
+	// Based on profiling, it's more than 10x faster to reverse the array
+	// and pop items off the end than to shift them of the front. WTF.
+	pixarray.reverse();
+	var pixels = [];
+	for (i=0; i<height; ++i) {
+		for (j=0; j<width; ++j) {
+			pix = pixarray.pop();
+			if (typeof pixcache[pix] == 'undefined')
+				pixcache[pix] = _pack(parseInt(pix, 16), 3);
+			pixels.push(pixcache[pix]);
+		}
+		for (j=0; j<rowpadding; ++j) {
+			pixels.push("\x00");
+		}
+	}
+	return _bmp(width, height, [], pixels.join(""), 24, 0);
+}
+
+var fontSize = 18;
 
 /* jCanvas has an option for write full strings but don't have a option for control letter spacing.
 The font has a letter spacing of 2px, and the generator needs a spacing of 1px.
@@ -27,16 +116,16 @@ var write = function(x, y, text, color = 'gray') {
 		/* Draw 1 character */
 		$('#topscreen').drawText({
 			fillStyle: color,
-			x: x+2, y: y,
-			fontSize: 16,
+			x: x + 2, y: y,
+			fontSize: fontSize,
 			fontFamily: 'PerfectDOSVGA437Win',
 			align: 'left',
 			text: letter
 		});
 	
-		/* Remove the character writed from the string, and if itn't empty, continue recursive */
+		/* Remove the character written from the string, and if isn't empty, continue recursive */
 		text = text.substr(1);
-		x = x + 8;
+		x = x + fontSize / 2;
 	}
 }
 
@@ -45,71 +134,38 @@ $("#settings input, #settings select").on('change', function() {
 	var $topscreen = $('#topscreen');
 	$topscreen.imageSmoothingEnabled = false;
 	$topscreen.textRendering = "geometricPrecision"
-	
-	var model = $('input[name=model]:checked', "#settings").val();
-	var region = $('select[name=region] option:selected', "#settings").val();
-	var sd = $('select[name=sd] option:selected', "#settings").val();
-	var type = $('select[name=type] option:selected', "#settings").val();
-	
-	var line1 = $('select[name=type] option:selected', "#settings").text();
-	var line2 = $('select[name=copyOptions] option:selected', "#settings").text();
-	var processor = 0; var use_bootinput = false; var use_auxinput = false;
+
+	var firmware = $('select[name=firmware] option:selected', "#settings").text();
+	var sd1 = $('select[name=sd1] option:selected', "#settings").val();
+	var sd2 = $('select[name=sd2] option:selected', "#settings").val();
+
+	var line1 = firmware;
+	var line2 = 'Copyright (C) 2023, ';
+	var use_bootinput = false;
 
 	if ($('select[name=boottool] option:selected', "#settings").val() == 'custom') {
 		$('input[name=boottool]', "#settings").show();
 		$('select[name=boottool]', "#settings").parent().hide();
 		use_bootinput = true;
 	}
-	
-	if ($('select[name=secondTool] option:selected', "#settings").val() == 'custom') {
-		$('input[name=secondTool]', "#settings").show();
-		$('select[name=secondTool]', "#settings").parent().hide();
-		use_auxinput = true;
-	}
 
-	switch(type) {
-		case 'luma2016':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2016, ' + line2;
+	switch(firmware) {
+		case 'Garlic OS':
+			line2 += 'Black-Seraph';
 			break;
-		case 'luma2017':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2017, ' + line2;
-			break;
-		case 'luma2018':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2018, ' + line2;
-			break;
-		case 'luma2019':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2019, ' + line2;
-			break;
-		case 'luma2020':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2020, ' + line2;
-			break;
-		case 'luma2022':
-			$topscreen.attr('width', 400);
-			line2 = 'Copyright(C) 2022, ' + line2;
-			break;
-		case 'menuhax2015':
-			$topscreen.attr('width', 800);
-			line2 = 'Copyright(C) 2015, yellow8';
-			break;
-		case 'menuhax2016':
-			$topscreen.attr('width', 800);
-			line2 = 'Copyright(C) 2016, yellow8';
+		case 'MiniUI':
+			line2 += 'Shaun Inman';
 			break;
 	}
 
 	$topscreen.clearCanvas().drawRect({
 		fillStyle: 'black',
 		x: 0, y: 0,
-		width: 400,
-		height: 240
+		width: 640,
+		height: 480
 	}).drawImage({
 		source: 'images/symbols.png',
-		x: 1, y: 16,
+		x: 12, y: 20,
 		sWidth: 21,
 		sHeight: 29,
 		sx: 40, sy: 10
@@ -119,7 +175,7 @@ $("#settings input, #settings select").on('change', function() {
 		case 'energyStar':
 			$topscreen.drawImage({
 				source: 'images/symbols.png',
-				x: 266, y: 16,
+				x: 480, y: 18,
 				sWidth: 133,
 				sHeight: 84,
 				sx: 0, sy: 0
@@ -130,124 +186,46 @@ $("#settings input, #settings select").on('change', function() {
 				height: 29
 			});
 			break;
-		case 'energyLuma':
-			$topscreen.drawImage({
-				source: 'images/symbols.png',
-				x: 266, y: 16,
-				sWidth: 133,
-				sHeight: 84,
-				sx: 0, sy: 84
-			});
-			break;
-		case 'lumaIcon':
-			$topscreen.drawImage({
-				source: 'images/symbols.png',
-				x: 266, y: 8,
-				sWidth: 133,
-				sHeight: 84,
-				sx: 0, sy: 84*2
-			});
-			break;
 	}
 
-	write(24, 16*1, line1);
-	write(24, 16*2, line2);
+	write(40, fontSize * 1, line1);
+	write(40, fontSize * 2, line2);
 
-	switch(model) {
-		case '3DS':
-			write(0, 16*5, 'Nintendo 3DS CTR-001('+region+')');
-			processor = 2; sd += ' SD'
-			break;
-		case '3DSXL':
-			if (region == 'JPN')
-				write(0, 16*5, 'Nintendo 3DS LL SPR-001('+region+')');
-			else
-				write(0, 16*5, 'Nintendo 3DS XL SPR-001('+region+')');
-			processor = 2; sd += ' SD'
-			break;
-		case '2DS':
-			write(0, 16*5, 'Nintendo 2DS FTR-001('+region+')');
-			processor = 2; sd += ' SD'
-			break;
-		case 'n2DSXL':
-			if (region == 'JPN')
-				write(0, 16*5, 'New Nintendo 2DS LL JAN-001('+region+')');
-			else
-				write(0, 16*5, 'New Nintendo 2DS XL JAN-001('+region+')');
-			processor = 4; sd += ' microSD'
-			break;
-		case 'n3DS':
-			write(0, 16*5, 'New Nintendo 3DS KTR-001('+region+')');
-			processor = 4; sd += ' microSD'
-			break;
-		case 'n3DSXL':
-			if (region == 'JPN')
-				write(0, 16*5, 'New Nintendo 3DS LL RED-001('+region+')');
-			else
-				write(0, 16*5, 'New Nintendo 3DS XL RED-001('+region+')');
-			processor = 4; sd += ' microSD'
-			break;
-	}
+	write(32, fontSize * 6, 'Anbernic RG35XX (ver 1.0)');
+	write(32, fontSize * 8, 'Main Processor    :   ATM7039S Quad-Core ARM Cortex-A9 1.5GHz');
+	write(32, fontSize * 9, 'Memory Test       :   262144KB OK');
 
-	switch(processor) {
-		case 2:
-			write(0, 16*7, 'Main Processor       : Dual-core ARM11 MPCore');
-			write(0, 16*8, 'Memory Testing       : 131072K OK');
-			break;
-		case 4:
-			write(0, 16*7, 'Main Processor       : Quad-core ARM11 MPCore');
-			write(0, 16*8, 'Memory Testing       : 262144K OK');
-			break;
-	}
+	write(32, fontSize * 11, 'Plug and Play BIOS Extension, v1.0A');
+	write(64, fontSize * 12, 'Detecting Primary Master      ... ' + (sd1 !== 'None' ? sd1 + ' TF1/INT MicroSD': sd1));
+	write(64, fontSize * 13, 'Detecting Primary Slave       ... ' + (sd2 !== 'None' ? sd2 + ' TF2/EXT MicroSD': sd2));
+	write(64, fontSize * 14, 'Detecting Secondary Master    ... None');
+	write(64, fontSize * 15, 'Detecting Secondary Slave     ... None');
 
-	write(0, 16*9,  'Detecting Primary Master ... '+ processor/2 +'G Internal Memory');
-	write(0, 16*10, 'Detecting Primary Slave  ... '+ sd +' Card');
-	
 	if (!use_bootinput)
 		$('input[name=boottool]', "#settings").val($('select[name=boottool] option:selected', "#settings").text());
-		
-	if (!use_auxinput)
-		$('input[name=secondTool]', "#settings").val($('select[name=secondTool] option:selected', "#settings").text());
 	
 	var boot_bool = $('input[name=hold]', "#settings").is(':checked');
-	var boot_keys = $('select[name=onboot] option:selected', "#settings").val();
+	var boot_keys = $('select[name=onboot] option:selected', "#settings").text();
 	var boot_tool = $('input[name=boottool]', "#settings").val();
-	var boot_text = '_Hold ' + boot_keys + ' '+ $('select[name=firstTime] option:selected').text() +'_ to enter _' + boot_tool + '_.';
-
-	var aux_bool = $('input[name=secondLine]', "#settings").is(':checked');
-	var aux_keys = $('select[name=secondButton] option:selected').val();
-	var aux_tool = $('input[name=secondTool]').val();
-	var aux_text = '_Hold ' + aux_keys + ' '+ $('select[name=secondTime] option:selected').text() +'_ to enter _' + aux_tool + '_.';
+	var boot_text = 'Press _' + boot_keys + '_ to change _' + boot_tool + '_.';
 	
-	if (boot_bool && !aux_bool)
-		write(0, 16*14, boot_text);
-	else if (boot_bool)
-		write(0, 16*13, boot_text);
-	
-	if (aux_bool)
-		write(0, 16*14, aux_text);
+	if (boot_bool)
+		write(12, fontSize*25, boot_text);
 
-	if ($topscreen.width() == 800) {
-		$topscreen.drawImage({
-			source: $topscreen.getCanvasImage(),
-			x: 400, y: 0
-		});
-	}
-
+	$topscreen.drawImage({
+		source: $topscreen.getCanvasImage(),
+		x: 640, y: 0
+	});
 });
 
 window.onload = function() {
-	
 	$('canvas').drawImage({
 		source: 'images/symbols.png',
 		x: 0, y: 0,
 		load: function() {
-			$("select[name=region]", "#settings").trigger('change');
-			if ($('#offline_warning').is(':hidden'))
-				$('#downloadPNG, #downloadBIN').removeClass('disabled');
+			$("select[name=firmware]", "#settings").trigger('change');
 		}
 	});
-	
 };
 
 $('input[name=boottool]', "#settings").keyup(function() { $("#settings input").trigger('change'); });
@@ -257,37 +235,38 @@ $('input[name=auxtool]', "#settings").keyup(function() { $("#settings input").tr
 /* Create a PNG downloadable of the canvas */
 /* global download */
 $('#downloadPNG').click(function() {
-	if (!$(this).hasClass('disabled')) {
-		var filename = ($('#topscreen').width() == 400) ? 'splash.png' : 'imagedisplay.png';
-		var filedata = $('#topscreen').getCanvasImage();
-		download(filedata, filename, "image/png");
-	}
+	var filename = 'boot_logo.png';
+	var filedata = $('#topscreen').getCanvasImage();
+
+	download(filedata, filename, "image/png");
 });
 
-$('#downloadBIN').click(function() {
-	if (!$(this).hasClass('disabled')) {
-		var filename = ($('#topscreen').width() == 400) ? 'splash.bin' : 'menuhax_imagedisplay.bin';
-		
-		var width = $('#topscreen').height();
-		var height = $('#topscreen').width();
-		
-		var $canvas = $('<canvas/>').css({ position: 'absolute', top: 0, left: -1*width }).appendTo('body');
-		$canvas.attr('width', width).attr('height', height);
+$('#downloadBMP').click(function() {
+	var oldCanvas = $('#topscreen')[0];
+	var newCanvas = document.createElement('canvas');
+	var newContext = newCanvas.getContext('2d');
 
-		$canvas.drawImage({
-			source: $('#topscreen').getCanvasImage(),
-			x: width/2, y: height/2,
-			fromCenter: true,
-			rotate: 90
-		});
+	newCanvas.width = oldCanvas.width;
+	newCanvas.height = oldCanvas.height;
+	newContext.scale(1, -1);
+	newContext.drawImage(oldCanvas, 0, -480);
 
-		var canvasdata = $canvas.get(0).getContext('2d').getImageData(0, 0, width, height).data;
-		var filedata = '';
-		
-		for(var i = 0; i < canvasdata.length; i += 4)
-			filedata += String.fromCharCode(canvasdata[i+2], canvasdata[i+1], canvasdata[i]);
+	var filename = 'boot_logo.bmp';
+	var data = Array.from(newContext.getImageData(0, 0, 640, 480).data);
+	var pixels = [];
 
-		$canvas.remove();
-		download('data:application/octet-stream;base64,' + window.btoa(filedata), filename);
+	for (var i = 0; i < data.length; i += 4) {
+		var pix = 0
+		var opacity = data[i + 3] / 255;
+		for (var j = 0; j < 3; j++) {
+			pix = pix << 8;
+			pix += data[i + j] * opacity;
+		}
+
+		pixels.push(pix.toString(16).padStart(6, '0'));
 	}
+
+	var filedata = bmp_rgb(640, 480, pixels);
+
+	download(filedata, filename, "image/bmp");
 });

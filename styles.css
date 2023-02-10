@@ -65,3 +65,7 @@ p#credit {
     margin-top: -40px;
     text-align: center;
 }
+
+.input-field.inline input, .input-field.inline .select-dropdown {
+    margin-bottom: 0;
+}

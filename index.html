@@ -4,22 +4,22 @@
 	<title>Old School PC BIOS - Splash Bootscreen Generator for 3DS</title>
 	
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Roboto:100,300,400,500,600|Material+Icons" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
 	<link rel="stylesheet" href="webfont/PerfectDOSVGA437Win.css">
 	<link rel="stylesheet" href="styles.css">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	
+
 	<meta property="og:title" content="Old School PC BIOS" />
-	<meta property="og:description" content="Splash Bootscreen Generator for 3DS CFW" /> 
+	<meta property="og:description" content="Splash Bootscreen Generator for Anbernic RG35XX" />
 	<meta property="og:image" content="https://i.imgur.com/Fvxb9iS.png" />
-	<meta property="og:url" content="https://sebascontre.github.io/bootscreen3ds/" />
+	<meta property="og:url" content="https://xquader.github.io/bootscreen-rg35xx/" />
 	
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:site" content="@sebascontre">
 	<meta name="twitter:creator" content="@sebascontre">
 	<meta name="twitter:title" content="Old School PC BIOS">
-	<meta name="twitter:description" content="Splash Bootscreen Generator for 3DS">
+	<meta name="twitter:description" content="Splash Bootscreen Generator for RG35XX">
 	<meta name="twitter:image" content="https://i.imgur.com/Fvxb9iS.png">
 	
 	<!--[if lt IE 9]>
@@ -33,136 +33,61 @@
 	
 	<div class="container">
 		<h1>Old School PC BIOS</h1>
-		<p id="subtitle">Splash Bootscreen Generator <small>v6.0</small></p>
+		<p id="subtitle">Splash Bootscreen Generator <small>v1.0</small></p>
 		
 		
-		
-		
-		<p id="credit">made with &#10084; by
-			<a href="https://twitter.com/sebascontre" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="idea and coding">@sebascontre</a> - icons by
-			<a href="https://twitter.com/yopalonso" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="3DS pixel art">@yopalonso</a></p>
-
-		<div id="offline_warning" class="alert alert-warning" style="display: none";><strong>Warning!</strong> The Downloads and MenuxHax methods don't work locally on Google Chrome and similar browsers, if it's your case, please use the <a href="https://sebascontre.github.io/bootscreen3ds/">online version</a> instead.</div>
 		
 		<form id="settings">
-			<div class="row">
-				<fieldset id="consoles" class="form-check">
-					<legend class="col-form-legend">Nintendo 3DS Model</legend>
-					<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="3DS" checked>
-						<img class="console" src="images/3DS.png" />
-					</label>
-					<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="3DSXL">
-						<img class="console" src="images/3DSXL.png" />
-					</label>
-						<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="n3DS">
-						<img class="console" src="images/n3DS.png" />
-					</label>
-					<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="n3DSXL">
-						<img class="console" src="images/n3DSXL.png" />
-					</label>
-					<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="2DS">
-						<img class="console" src="images/2DS.png" />
-					</label>
-					<label class="form-check-label col s4 m2">
-						<input type="radio" name="model" value="n2DSXL">
-						<img class="console" src="images/n2DSXL.png" />
-					</label>
-				</fieldset>
-			</div>
 			<div class="row">
 				<fieldset id="options">
 					<legend >Options</legend>
 					<div class="input-field col s6 m2">
-						<select name="region">
-							<option value="USA" selected="selected">USA</option>
-							<option value="EUR">EUR</option>
-							<option value="JPN">JPN</option>
+						<select name="firmware">
+							<option value="Garlic OS" selected="selected">Garlic OS</option>
+<!--							<option value="MiniUI">MiniUI</option>-->
 						</select>
-						<label>Region</label>
+						<label>Firmware</label>
 					</div>
 					<div class="input-field col s6 m2">
-						<select name="sd" class="form-control">
-							<option value="No">None</option>
-							<option value="2G">2GB</option>
-							<option value="4G" selected="selected">4GB</option>
-							<option value="8G">8GB</option>
-							<option value="16G">16GB</option>
-							<option value="32G">32GB</option>
-							<option value="64G">64GB</option>
-							<option value="128G">128GB</option>
-							<option value="200G">200GB</option>
-							<option value="256G">256GB</option>
-							<option value="512G">512GB</option>
-							<option value="1024G">1024GB</option>
-							<option value="1T">1TB</option>
+						<select name="sd1" class="form-control">
+							<option value="None">None</option>
+							<option value="2GB">2GB</option>
+							<option value="4GB">4GB</option>
+							<option value="8GB">8GB</option>
+							<option value="16GB">16GB</option>
+							<option value="32GB">32GB</option>
+							<option value="64GB" selected="selected">64GB</option>
+							<option value="128GB">128GB</option>
+							<option value="200GB">200GB</option>
+							<option value="256GB">256GB</option>
+							<option value="512GB">512GB</option>
+							<option value="1024GB">1024GB</option>
+							<option value="1TB">1TB</option>
 						</select>
-						<label>SD Card</label>
+						<label>TF1/INT SD Card</label>
 					</div>
-					<div class="input-field col s12 m3">
-						<select name="type" class="form-control">
-							<option value="luma2022">Luma3DS</option>
-							<option value="luma2022">Luma3DS hourly</option>
-							<option value="luma2022" selected="selected">Luma3DS v11.0</option>
-							<option value="luma2022">Luma3DS v10.3</option>
-							<option value="luma2020">Luma3DS v10.2.1</option>
-							<option value="luma2020">Luma3DS v10.2</option>
-							<option value="luma2020">Luma3DS v10.1.3</option>
-							<option value="luma2020">Luma3DS v10.1.2</option>
-							<option value="luma2020">Luma3DS v10.1.1</option>
-							<option value="luma2020">Luma3DS v10.1</option>
-							<option value="luma2019">Luma3DS v10.0.1</option>
-							<option value="luma2019">Luma3DS v10.0</option>
-							<option value="luma2018">Luma3DS v9.1</option>
-							<option value="luma2017">Luma3DS v9.0</option>
-							<option value="luma2017">Luma3DS v8.1.1</option>
-							<option value="luma2017">Luma3DS v8.1</option>
-							<option value="luma2017">Luma3DS v8.0</option>
-							<option value="luma2017">Luma3DS v7.1</option>
-							<option value="luma2017">Luma3DS v7.0.5</option>
-							<option value="luma2017">Luma3DS v7.0.4</option>
-							<option value="luma2017">Luma3DS v7.0.3</option>
-							<option value="luma2017">Luma3DS v7.0.2</option>
-							<option value="luma2017">Luma3DS v7.0.1</option>
-							<option value="luma2017">Luma3DS v7.0</option>
-							<option value="luma2016">Luma3DS v6.6</option>
-							<option value="luma2016">Luma3DS v6.5</option>
-							<option value="luma2016">Luma3DS v6.3.1</option>
-							<option value="luma2016">Luma3DS v6.3</option>
-							<option value="luma2016">Luma3DS v6.2.3</option>
-							<option value="luma2016">Luma3DS v6.2.2</option>
-							<option value="luma2016">Luma3DS v6.2.1</option>
-							<option value="luma2016">Luma3DS v6.2</option>
-							<option value="luma2016">Luma3DS v6.1.2</option>
-							<option value="luma2016">Luma3DS v6.1.1</option>
-							<option value="luma2016">Luma3DS v6.1</option>
-							<option value="luma2016">Luma3DS v6.0.1</option>
-							<option value="luma2016">Luma3DS v6.0</option>
-							<option value="menuhax2016">Menuhax v3.1</option>
-							<option value="menuhax2016">Menuhax v3.0</option>
-							<option value="menuhax2016">Menuhax v2.2</option>
-							<option value="menuhax2015">Menuhax v2.1</option>
+					<div class="input-field col s6 m2">
+						<select name="sd2" class="form-control">
+							<option value="None">None</option>
+							<option value="2GB">2GB</option>
+							<option value="4GB">4GB</option>
+							<option value="8GB">8GB</option>
+							<option value="16GB">16GB</option>
+							<option value="32GB">32GB</option>
+							<option value="64GB">64GB</option>
+							<option value="128GB" selected="selected">128GB</option>
+							<option value="200GB">200GB</option>
+							<option value="256GB">256GB</option>
+							<option value="512GB">512GB</option>
+							<option value="1024GB">1024GB</option>
+							<option value="1TB">1TB</option>
 						</select>
-						<label>Type</label>
-					</div>
-					<div class="input-field col s12 m2">
-						<select name="copyOptions" class="form-control form-control-sm">
-							<option value="aurora">AuroraWright</option>
-							<option value="tux">TuxSH</option>
-							<option value="lumaTeam" selected="selected">LumaTeam</option>
-						</select>
-						<label>Copyright Luma3DS</label>
+						<label>TF2/EXT SD Card</label>
 					</div>
 					<div class="input-field col s12 m3">
 						<select name="logoOptions" class="form-control form-control-sm">
 							<option value="noLogo">No Logo</option>
-							<option value="energyStar">Energy Star Logo</option>
-							<option value="energyLuma" selected="selected">Energy Luma Logo</option>
-							<option value="lumaIcon">Luma Icon</option>
+							<option value="energyStar" selected="selected">Energy Star Logo</option>
 						</select>
 						<label>Side Logo</label>
 					</div>
@@ -172,86 +97,22 @@
 				<fieldset id="otheroptions">
 					<legend>Other Options</legend>
 					<p>
-						<input type="checkbox" class="filled-in" id="hold" name="hold" checked="checked" />
-						<label for="hold"></label>
-							<span><strong>Hold</strong></span>
-							<span class="input-field inline">
-								<select name="onboot" class="form-control form-control-sm">
-									<option value="L">L</option>
-									<option value="R">R</option>
-									<option value="A">A</option>
-									<option value="B">B</option>
-									<option value="X">X</option>
-									<option value="Y">Y</option>
-									<option value="UP">UP</option>
-									<option value="DOWN">DOWN</option>
-									<option value="LEFT">LEFT</option>
-									<option value="RIGHT">RIGHT</option>
-									<option value="START">START</option>
-									<option value="SELECT" selected="selected">SELECT</option>
-									<option value="HOME">HOME</option>
-								</select>
-							</span>
-							<span class="input-field inline">
-								<select name="firstTime" class="form-control form-control-sm">
-									<option value="now">now</option>
-									<option value="boot" selected="selected">on boot</option>
-								</select>
-							</span> <span>to enter</span>
-							<span class="input-field inline">
-								<input type="text" name="boottool" val="." style="display: none;" class="form-control form-control-sm" />
-								<select name="boottool" class="form-control form-control-sm">
-									<option value="lumasettings" selected="selected">Configuration Menu</option>
-									<option value="decrypt9">Decrypt9</option>
-									<option value="hourglass9">Hourglass9</option>
-									<option value="emunand">EmuNAND</option>
-									<option value="sysnand">SysNAND</option>
-									<option value="godmode9">GodMode9</option>
-									<option value="custom"><em>Custom</em></option>
-								</select>
-							</span>
+						<label>
+							<input type="checkbox" class="filled-in" id="hold" name="hold" checked="checked">
+							<span></span>
 						</label>
-					</p>
-					<p>
-						<input type="checkbox" class="filled-in" id="secondLine" name="secondLine" checked="checked" />
-						<label for="secondLine"></label>
-						<span><strong>Hold</strong></span>
+						<span><strong>Press</strong></span>
 						<span class="input-field inline">
-							<select name="secondButton" class="form-control form-control-sm select-inline">
-								<option value="L">L</option>
-								<option value="R">R</option>
-								<option value="A">A</option>
-								<option value="B">B</option>
-								<option value="X">X</option>
-								<option value="Y">Y</option>
-								<option value="UP">UP</option>
-								<option value="DOWN">DOWN</option>
-								<option value="LEFT">LEFT</option>
-								<option value="RIGHT">RIGHT</option>
-								<option value="START" selected="selected">START</option>
-								<option value="SELECT">SELECT</option>
-								<option value="HOME">HOME</option>
+							<select name="onboot" class="form-control form-control-sm">
+								<option value="vol">MENU + VOL DOWN/UP</option>
 							</select>
 						</span>
-						<span class="input-field inline"><select name="secondTime" class="form-control form-control-sm">
-								<option value="now">now</option>
-								<option value="boot" selected="selected">on boot</option>
-							</select>
-						</span>
-						<span>to enter</span>
+						<span>to change</span>
 						<span class="input-field inline">
-							<input type="text" name="secondTool" val="." style="display: none;" class="form-control form-control-sm" />
-							<select name="secondTool" class="form-control form-control-sm">
-								<option value="rxtools">Rxtools settings</option>
-								<option value="chainloader" selected="selected">Chainloader Selector</option>
-								<option value="bootmanager">Boot Manager</option>
-								<option value="gateway">Gateway Menu</option>
-								<option value="lumasettings">Configuration Menu</option>
-								<option value="settings">Settings</option>
-								<option value="decrypt9">Decrypt9</option>
-								<option value="hourglass9">Hourglass9</option>
-								<option value="godmode9">GodMode9</option>
-								<option value="custom"><em>Custom</em></option>
+							<input type="text" name="boottool" val="." style="display: none;" class="form-control form-control-sm" />
+							<select name="boottool" class="form-control form-control-sm">
+								<option value="brightness"><em>BRIGHTNESS</em></option>
+<!--									<option value="custom"><em>Custom</em></option>-->
 							</select>
 						</span>
 					</p>
@@ -259,27 +120,22 @@
 			</div>
 		</form>
 	
-		<center><canvas width="400" height="240" id="topscreen"></canvas></center>
+		<center><canvas width="640" height="480" id="topscreen"></canvas></center>
 		<center>
-			<a id="downloadPNG" class="btn btn-primary disabled" href="#png" role="button">Download PNG</a>
-			<a id="downloadBIN" class="btn btn-primary disabled" href="#bin" role="button">Download BIN</a>
+			<a id="downloadPNG" class="btn btn-primary" href="#png" role="button">Download PNG</a>
+			<a id="downloadBMP" class="btn btn-primary" href="#bin" role="button">Download BMP</a>
 		</center>
 	</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/16.7.3/jcanvas.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.7/download.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<script src="scripts.js"></script>
 	<script type="text/javascript">
-$(document).ready(function() {
-    $('select').material_select();
-  });
-            
+		$(document).ready(function() {
+			M.AutoInit();
+		});
 	</script>
-
-	<center><br/>
-		Donations: <a href="https://www.paypal.me/sebascontre">Paypal.me</a> - <a href="https://ko-fi.com/sebascontre">Ko-fi.com</a>
-	</center>
 </body>
 </html>
