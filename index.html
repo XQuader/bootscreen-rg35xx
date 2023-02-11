@@ -12,6 +12,7 @@
 
 	<meta property="og:title" content="Old School PC BIOS" />
 	<meta property="og:description" content="Splash Bootscreen Generator for Anbernic RG35XX" />
+	<meta property="og:image" content="https://images2.imgbox.com/15/54/h8ThctZU_o.png" />
 	<meta property="og:url" content="https://xquader.github.io/bootscreen-rg35xx/" />
 	
 	<!--[if lt IE 9]>
@@ -25,7 +26,7 @@
 
 	<div class="container">
 		<h1>Old School PC BIOS</h1>
-		<p id="subtitle">Splash Bootscreen Generator <small>v1.0</small></p>
+		<p id="subtitle">Splash Bootscreen Generator <small>v2.0</small></p>
 
 
 
@@ -114,8 +115,8 @@
 	
 		<center><canvas width="640" height="480" id="topscreen"></canvas></center>
 		<center>
-			<a id="downloadPNG" class="btn btn-primary" href="#png" role="button">Download PNG</a>
-			<a id="downloadBMP" class="btn btn-primary" href="#bin" role="button">Download BMP</a>
+			<a id="downloadPNG" class="btn btn-primary" href="#png" role="button">Download PNG image</a>
+			<a id="downloadGZ" class="btn btn-primary" href="#gz" role="button">Download boot_logo.bmp.gz</a>
 		</center>
 	</div>
 
@@ -123,6 +124,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/16.7.3/jcanvas.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.7/download.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<script src="https://unpkg.com/pako@2.1.0/dist/pako_deflate.js"></script>
 	<script src="scripts.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {

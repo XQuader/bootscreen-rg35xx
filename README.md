@@ -10,12 +10,16 @@
 
 2. Use the options to tweak the screen to your liking.
 
-3. Download the BMP file of your screen.
+3. Download the **boot_logo.bmp.gz** file of your screen.
 
-4. Compress the BMP file to the **boot_logo.bmp.gz** and put it in the correct spot on the SD Card (root of **"misc"** partition).
+4. Put it in the correct spot on the TF1 SD Card (root of the **misc** partition).
 
 
 ## Changelog
+
+**Version 2.0**
+
+* Add gzipped bmp download, no need to use other tools
 
 **Version 1.0**
 

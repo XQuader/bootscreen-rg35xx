@@ -232,16 +232,15 @@ $('input[name=boottool]', "#settings").keyup(function() { $("#settings input").t
 $('input[name=auxtool]', "#settings").keyup(function() { $("#settings input").trigger('change'); });
 
 
-/* Create a PNG downloadable of the canvas */
-/* global download */
+/* Download PNG image of the canvas */
 $('#downloadPNG').click(function() {
-	var filename = 'boot_logo.png';
 	var filedata = $('#topscreen').getCanvasImage();
 
-	download(filedata, filename, "image/png");
+	download(filedata, 'boot_logo.png', 'image/png');
 });
 
-$('#downloadBMP').click(function() {
+/* Download boot_logo.bmp.gz */
+$('#downloadGZ').click(function() {
 	var oldCanvas = $('#topscreen')[0];
 	var newCanvas = document.createElement('canvas');
 	var newContext = newCanvas.getContext('2d');
@@ -251,22 +250,24 @@ $('#downloadBMP').click(function() {
 	newContext.scale(1, -1);
 	newContext.drawImage(oldCanvas, 0, -480);
 
-	var filename = 'boot_logo.bmp';
-	var data = Array.from(newContext.getImageData(0, 0, 640, 480).data);
-	var pixels = [];
+	var imageData = Array.from(newContext.getImageData(0, 0, 640, 480).data); // RGBA
+	var pixels = []; // RGB
 
-	for (var i = 0; i < data.length; i += 4) {
+	for (var i = 0; i < imageData.length; i += 4) {
 		var pix = 0
-		var opacity = data[i + 3] / 255;
+		var opacity = imageData[i + 3] / 255;
 		for (var j = 0; j < 3; j++) {
 			pix = pix << 8;
-			pix += data[i + j] * opacity;
+			pix += imageData[i + j] * opacity;
 		}
 
 		pixels.push(pix.toString(16).padStart(6, '0'));
 	}
 
-	var filedata = bmp_rgb(640, 480, pixels);
+	var fileData = bmp_rgb(640, 480, pixels);
+	var bytes = Uint8Array.from(fileData.split('').map(c => c.charCodeAt(0)));
+	var gzipped = pako.gzip(bytes, { level: 9 });
+	var blob = new Blob([gzipped], { type: 'application/gzip'});
 
-	download(filedata, filename, "image/bmp");
+	download(blob, 'boot_logo.bmp.gz', 'application/gzip');
 });
