@@ -1,6 +1,9 @@
 # bootscreen-rg35xx
-Old School BIOS Generator for Anbernic RG35XX
+
+## Old School BIOS Generator for Anbernic RG35XX
+
 ![Example Image](https://user-images.githubusercontent.com/17005458/218252327-b566ca9b-321d-4037-a8cd-e374055896a0.png)
+
 ## How do I use this?
 
 1. Load the [website](https://xquader.github.io/bootscreen-rg35xx/).
